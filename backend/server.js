@@ -5,13 +5,13 @@ import dotenv from 'dotenv';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import multer from 'multer';
-// import { fileURLToPath } from 'url';
-// import { dirname } from 'path';
 import { v2 as cloudinary } from 'cloudinary';
-import cities from './cities.json' assert { type: 'json' };
+import { createRequire } from 'module';
 
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = dirname(__filename);
+
+const require = createRequire(import.meta.url);
+const cities = require('./cities.json');
+
 
 dotenv.config();
 
