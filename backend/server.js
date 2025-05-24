@@ -8,6 +8,7 @@ import multer from 'multer';
 // import { fileURLToPath } from 'url';
 // import { dirname } from 'path';
 import { v2 as cloudinary } from 'cloudinary';
+import cities from './cities.json' assert { type: 'json' };
 
 // const __filename = fileURLToPath(import.meta.url);
 // const __dirname = dirname(__filename);
@@ -187,6 +188,21 @@ app.post('/api/login', async (req, res) => {
   } catch (error) {
     res.status(400).send({ error: error.message });
   }
+});
+
+
+app.get('/api/city-suggestions', (req, res) => {
+  const { query } = req.query;
+  
+  if (!query) {
+    return res.json([]);
+  }
+
+  const suggestions = cities.filter(city => 
+    city.toLowerCase().includes(query.toLowerCase())
+  ).slice(0, 5);
+
+  res.json(suggestions);
 });
 
 const PORT = process.env.PORT || 3000;

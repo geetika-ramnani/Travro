@@ -14,32 +14,36 @@ function Register({ onRegister, backendUrl }) {
 
 
   const fetchCitySuggestions = async (query) => {
-    if (!query) return;
+  if (!query || query.length < 2) {
+    setSuggestions([]);
+    return;
+  }
 
-    try {
-      const res = await fetch(`https://api.teleport.org/api/cities/?search=${query}`);
-      const data = await res.json();
-
-      const results = data._embedded["city:search-results"].map((item) =>
-        item.matching_full_name
-      );
-
-      setSuggestions(results.slice(0, 5)); // limit to 5 suggestions
-    } catch (err) {
-      console.error('City API Error:', err);
-    }
-  };
+  try {
+    const response = await fetch(
+      `${backendUrl}/api/city-suggestions?query=${encodeURIComponent(query)}`
+    );
+    
+    const data = await response.json();
+    setSuggestions(data);
+  } catch (error) {
+    console.error('Error fetching city suggestions:', error);
+    setSuggestions([]);
+  }
+};
 
   const handleCityChange = (e) => {
-    const value = e.target.value;
-    setCityQuery(value);
-    fetchCitySuggestions(value);
-  };
+  const value = e.target.value;
+  setCityQuery(value);
+  setDestination(value); // Also update destination
+  fetchCitySuggestions(value);
+};
 
-  const handleSuggestionClick = (suggestion) => {
-    setCity(suggestion);
-    setSuggestions([]);
-  };
+const handleSuggestionClick = (suggestion) => {
+  setCityQuery(suggestion);
+  setDestination(suggestion); // Update the actual destination
+  setSuggestions([]); // Clear suggestions
+};
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -50,7 +54,7 @@ function Register({ onRegister, backendUrl }) {
       formData.append('username', username);
       formData.append('password', password);
       formData.append('dob', dob);
-      formData.append('destination', city);
+      formData.append('destination', destination);
       formData.append('image', image);
 
       const response = await fetch(`${backendUrl}/api/register`, {
@@ -144,8 +148,8 @@ function Register({ onRegister, backendUrl }) {
         </div>
 
         {/* Destination */}
-        <div className="mb-4">
-          <label className="block text-rose-700 text-sm font-semibold mb-2" htmlFor="nextDestination">
+        <div className="mb-4 relative">
+          <label className="block text-rose-700 text-sm font-semibold mb-2">
             Next Destination
           </label>
           <div className="relative">
@@ -158,15 +162,20 @@ function Register({ onRegister, backendUrl }) {
               placeholder="Type a city name"
             />
           </div>
-          <ul>
-            {suggestions.map((city, index) => (
-              <li key={index} onClick={() => setCityQuery(city)}>
-                {city}
-              </li>
-            ))}
-          </ul>
+          {suggestions.length > 0 && (
+            <ul className="absolute z-10 w-full bg-white border border-rose-200 rounded-b-lg shadow-lg mt-1 max-h-60 overflow-auto">
+              {suggestions.map((city, index) => (
+                <li 
+                  key={index} 
+                  className="p-2 hover:bg-rose-50 cursor-pointer text-sm text-rose-800"
+                  onClick={() => handleSuggestionClick(city)}
+                >
+                  {city}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
-
         {/* Submit */}
         <button
           type="submit"
