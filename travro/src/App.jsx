@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Database, User } from 'lucide-react';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import { Client } from 'appwrite';
 
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL; // backend URL
@@ -13,6 +14,11 @@ function App() {
     connected: false,
     message: "Checking database connection...",
   });
+
+  const client = new Client();
+  client
+      .setEndpoint('https://fra.cloud.appwrite.io/v1')
+      .setProject('683177ee000049a7f5fc');
 
   useEffect(() => {
     const checkDbConnection = async () => {
