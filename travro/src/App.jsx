@@ -8,7 +8,6 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL; // backend URL
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token"));
-  console.log("Current token:", token);
   const [view, setView] = useState("login");
   const [dbStatus, setDbStatus] = useState({
     connected: false,
