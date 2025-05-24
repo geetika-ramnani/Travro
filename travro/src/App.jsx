@@ -4,7 +4,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 
 
-const BACKEND_URL = "http://localhost:3000"; // backend URL
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL; // backend URL
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token"));
