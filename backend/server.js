@@ -30,13 +30,12 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-
 // app.use(cors(corsOptions));
 // app.options('*', cors(corsOptions));
 
 const upload = multer({ dest: 'uploads/' });
 
-// // Body parsing middleware
+// Body parsing middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -96,22 +95,18 @@ const userSchema = new mongoose.Schema({
     unique: true,
     trim: true
   },
-
   password: {
     type: String,
     required: true
   },
-
   dob: {
     type: Date,
     required: true
   },
-
   imageUrl: {
     type: String,
     required: true // ensure at least one image is uploaded
   },
-
   destination: {
     type: String,
     required: true
@@ -141,7 +136,6 @@ const auth = async (req, res, next) => {
 };
 
 // Auth Routes
-
 app.post('/api/register', upload.single('image'), async (req, res) => {
   try {
     const { username, password, dob, destination } = req.body;
@@ -174,26 +168,6 @@ app.post('/api/register', upload.single('image'), async (req, res) => {
   }
 });
 
-
-// app.post('/api/register', async (req, res) => {
-//   try {
-//     const { username, password } = req.body;
-//     const hashedPassword = await bcrypt.hash(password, 8);
-//     const user = new User({ username, password: hashedPassword });
-//     await user.save();
-    
-//     const token = jwt.sign(
-//       { userId: user._id },
-//       process.env.JWT_SECRET || 'your-secret-key',
-//       { expiresIn: '24h' }
-//     );
-    
-//     res.status(201).send({ user, token });
-//   } catch (error) {
-//     res.status(400).send({ error: 'Registration failed. Username might be taken.' });
-//   }
-// });
-
 app.post('/api/login', async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -202,13 +176,13 @@ app.post('/api/login', async (req, res) => {
     if (!user || !(await bcrypt.compare(password, user.password))) {
       throw new Error('Invalid login credentials');
     }
-    
+
     const token = jwt.sign(
       { userId: user._id },
       process.env.JWT_SECRET || 'your-secret-key',
       { expiresIn: '24h' }
     );
-    
+
     res.send({ user, token });
   } catch (error) {
     res.status(400).send({ error: error.message });
