@@ -46,33 +46,35 @@ const handleSuggestionClick = (suggestion) => {
 };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!image) return setError('Please upload at least one image.');
+  e.preventDefault();
+  if (!image) return setError('Please upload at least one image.');
 
-    try {
-      const formData = new FormData();
-      formData.append('username', username);
-      formData.append('password', password);
-      formData.append('dob', dob);
-      formData.append('destination', destination);
-      formData.append('image', image);
+  try {
+    const formData = new FormData();
+    formData.append('username', username);
+    formData.append('password', password);
+    formData.append('dob', dob);
+    formData.append('destination', destination);
+    formData.append('image', image);
 
-      const response = await fetch(`${backendUrl}/api/register`, {
-        method: 'POST',
-        body: formData,
-      });
+    const response = await fetch(`${backendUrl}/api/register`, {
+      method: 'POST',
+      body: formData,
+    });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Registration failed');
-      }
-
-      onRegister(data.token);
-    } catch (err) {
-      setError(err.message);
+    const data = await response.json();
+    
+    if (!response.ok) {
+      // Show more detailed error from backend
+      throw new Error(data.details || data.error || 'Registration failed');
     }
-  };
+
+    onRegister(data.token);
+  } catch (err) {
+    console.error('Full error:', err);
+    setError(err.message);
+  }
+};
 
   return (
     <div className="bg-gradient-to-r from-rose-50 to-pink-50 p-8 rounded-2xl shadow-xl">
