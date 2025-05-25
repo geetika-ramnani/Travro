@@ -2,14 +2,13 @@ import { useEffect, useState } from 'react';
 import { Database, User } from 'lucide-react';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import Profile from './pages/Profile'; // Add this import
 import { Client } from 'appwrite';
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL; // backend URL
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token"));
-  const [currentUser, setCurrentUser] = useState(null); // Add currentUser state
   const [view, setView] = useState("login");
   const [dbStatus, setDbStatus] = useState({
     connected: false,
@@ -18,8 +17,8 @@ function App() {
 
   const client = new Client();
   client
-    .setEndpoint('https://fra.cloud.appwrite.io/v1')
-    .setProject('683177ee000049a7f5fc');
+      .setEndpoint('https://fra.cloud.appwrite.io/v1')
+      .setProject('683177ee000049a7f5fc');
 
   useEffect(() => {
     const checkDbConnection = async () => {
@@ -41,28 +40,8 @@ function App() {
     checkDbConnection();
     const interval = setInterval(checkDbConnection, 30000);
 
-    // Fetch user data if token exists
-    if (token) {
-      fetchUserData();
-    }
-
     return () => clearInterval(interval);
-  }, [token]);
-
-  const fetchUserData = async () => {
-    try {
-      const response = await fetch(`${BACKEND_URL}/api/me`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      const data = await response.json();
-      setCurrentUser(data.user);
-    } catch (err) {
-      console.error('Failed to fetch user data:', err);
-      handleLogout();
-    }
-  };
+  }, []);
 
   const handleLogin = (newToken) => {
     setToken(newToken);
@@ -71,13 +50,8 @@ function App() {
 
   const handleLogout = () => {
     setToken(null);
-    setCurrentUser(null);
     localStorage.removeItem("token");
     setView("login");
-  };
-
-  const handleUpdateProfile = (updatedUser) => {
-    setCurrentUser(updatedUser);
   };
 
   const renderDbStatus = () => (
@@ -128,21 +102,19 @@ function App() {
     );
   }
 
+
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-100 via-pink-100 to-rose-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        {currentUser && (
-          <Profile 
-            user={currentUser} 
-            backendUrl={BACKEND_URL} 
-            onLogout={handleLogout}
-            onUpdate={handleUpdateProfile}
-          />
-        )}
-      </div>
-      {renderDbStatus()}
-    </div>
-  );
+    <>
+      <button
+        onClick={handleLogout}
+        className="flex items-center space-x-1 text-rose-600 hover:text-rose-800 transition-colors duration-200"
+        >
+        <User className="w-5 h-5" />
+        <span>Logout</span>
+      </button>
+    </>
+  )
 }
 
-export default App;
+export default App

@@ -34,27 +34,7 @@ app.use(cors({
 // app.use(cors(corsOptions));
 // app.options('*', cors(corsOptions));
 
-
-// Update multer configuration
-const upload = multer({ 
-  dest: 'uploads/',
-  limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB limit
-  },
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) {
-      cb(null, true);
-    } else {
-      cb(new Error('Only image files are allowed!'), false);
-    }
-  }
-});
-
-// Add error handling middleware after your routes
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send({ error: err.message });
-});
+const upload = multer({ dest: 'uploads/' });
 
 // Body parsing middleware
 app.use(express.json());
@@ -160,19 +140,7 @@ const auth = async (req, res, next) => {
 app.post('/api/register', upload.single('image'), async (req, res) => {
   try {
     const { username, password, dob, destination } = req.body;
-    
-    // Convert dob string to Date object
-    const dobDate = new Date(dob);
-    if (isNaN(dobDate.getTime())) {
-      return res.status(400).send({ error: 'Invalid date format' });
-    }
-
     const hashedPassword = await bcrypt.hash(password, 8);
-
-    // Better file upload handling
-    if (!req.file) {
-      return res.status(400).send({ error: 'No image file uploaded' });
-    }
 
     const result = await cloudinary.uploader.upload(req.file.path, {
       folder: 'travro_users',
@@ -181,7 +149,7 @@ app.post('/api/register', upload.single('image'), async (req, res) => {
     const user = new User({
       username,
       password: hashedPassword,
-      dob: dobDate, // Use the converted Date object
+      dob,
       destination,
       imageUrl: result.secure_url,
     });
@@ -196,11 +164,8 @@ app.post('/api/register', upload.single('image'), async (req, res) => {
 
     res.status(201).send({ user, token });
   } catch (error) {
-    console.error('Registration error:', error);
-    res.status(400).send({ 
-      error: 'Registration failed, Username might be taken',
-      details: error.message // Include specific error details
-    });
+    console.error(error);
+    res.status(400).send({ error: 'Registration failed.' });
   }
 });
 
@@ -238,51 +203,6 @@ app.get('/api/city-suggestions', (req, res) => {
   ).slice(0, 5);
 
   res.json(suggestions);
-});
-
-// Add after your existing routes
-
-// Get current user profile
-app.get('/api/me', auth, async (req, res) => {
-  try {
-    res.send({ user: req.user });
-  } catch (error) {
-    res.status(500).send({ error: 'Failed to fetch user data' });
-  }
-});
-
-// Update profile
-app.put('/api/profile', auth, upload.single('image'), async (req, res) => {
-  try {
-    const { destination } = req.body;
-    const updates = { destination };
-
-    // Handle image upload if provided
-    if (req.file) {
-      const result = await cloudinary.uploader.upload(req.file.path, {
-        folder: 'travro_users',
-      });
-      updates.imageUrl = result.secure_url;
-    }
-
-    const user = await User.findByIdAndUpdate(
-      req.user._id,
-      { $set: updates },
-      { new: true }
-    );
-
-    if (!user) {
-      return res.status(404).send({ error: 'User not found' });
-    }
-
-    res.send({ user });
-  } catch (error) {
-    console.error('Profile update error:', error);
-    res.status(400).send({ 
-      error: 'Profile update failed',
-      details: error.message
-    });
-  }
 });
 
 const PORT = process.env.PORT || 3000;
