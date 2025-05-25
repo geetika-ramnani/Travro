@@ -2,14 +2,14 @@ import { useEffect, useState } from 'react';
 import { Database, User } from 'lucide-react';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import Profile from './pages/Profile'; // Add this import
+import Profile from './pages/Profile'; 
 import { Client } from 'appwrite';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token"));
-  const [currentUser, setCurrentUser] = useState(null); // Add currentUser state
+  const [currentUser, setCurrentUser] = useState(null);
   const [view, setView] = useState("login");
   const [dbStatus, setDbStatus] = useState({
     connected: false,

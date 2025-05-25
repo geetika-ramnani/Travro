@@ -1,6 +1,5 @@
-// src/pages/Profile.jsx
 import React, { useState, useEffect } from 'react';
-import { User, MapPin, Image, Save, LogOut } from 'lucide-react';
+import { User, MapPin, Image, Save, LogOut, Calendar } from 'lucide-react';
 
 function Profile({ user, backendUrl, onLogout, onUpdate }) {
   const [username, setUsername] = useState(user.username);
@@ -10,6 +9,13 @@ function Profile({ user, backendUrl, onLogout, onUpdate }) {
   const [previewUrl, setPreviewUrl] = useState(user.imageUrl);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [suggestions, setSuggestions] = useState([]);
+  const [cityQuery, setCityQuery] = useState(user.destination);
+
+  useEffect(() => {
+    setCityQuery(user.destination);
+    setPreviewUrl(user.imageUrl);
+  }, [user.destination, user.imageUrl]);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -17,6 +23,34 @@ function Profile({ user, backendUrl, onLogout, onUpdate }) {
       setImage(file);
       setPreviewUrl(URL.createObjectURL(file));
     }
+  };
+
+  const fetchCitySuggestions = async (query) => {
+    if (!query || query.length < 2) {
+      setSuggestions([]);
+      return;
+    }
+    try {
+      const response = await fetch(`${backendUrl}/api/city-suggestions?query=${encodeURIComponent(query)}`);
+      const data = await response.json();
+      setSuggestions(data);
+    } catch (error) {
+      console.error('Error fetching city suggestions:', error);
+      setSuggestions([]);
+    }
+  };
+
+  const handleCityChange = (e) => {
+    const value = e.target.value;
+    setCityQuery(value);
+    setDestination(value);
+    fetchCitySuggestions(value);
+  };
+
+  const handleSuggestionClick = (suggestion) => {
+    setCityQuery(suggestion);
+    setDestination(suggestion);
+    setSuggestions([]);
   };
 
   const handleSubmit = async (e) => {
@@ -46,7 +80,7 @@ function Profile({ user, backendUrl, onLogout, onUpdate }) {
       }
 
       setSuccess('Profile updated successfully!');
-      onUpdate(data.user); // Update parent component with new user data
+      onUpdate(data.user);
     } catch (err) {
       setError(err.message);
     }
@@ -71,13 +105,16 @@ function Profile({ user, backendUrl, onLogout, onUpdate }) {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Profile Picture */}
+        {/* Profile Picture - Updated with proper URL handling */}
         <div className="flex flex-col items-center">
           <div className="relative w-32 h-32 mb-4 rounded-full overflow-hidden border-4 border-rose-200">
             <img 
-              src={previewUrl} 
+              src={previewUrl.startsWith('http') ? previewUrl : `${backendUrl}/${previewUrl}`}
               alt="Profile" 
               className="w-full h-full object-cover"
+              onError={(e) => {
+                e.target.src = 'https://via.placeholder.com/150';
+              }}
             />
           </div>
           <label className="flex items-center justify-center px-4 py-2 bg-rose-100 text-rose-700 rounded-full cursor-pointer hover:bg-rose-200">
@@ -120,19 +157,34 @@ function Profile({ user, backendUrl, onLogout, onUpdate }) {
           </div>
         </div>
 
-        {/* Destination */}
-        <div>
-          <label className="block text-rose-700 text-sm font-semibold mb-2">Next Destination</label>
+        {/* Destination with Suggestions */}
+        <div className="mb-4 relative">
+          <label className="block text-rose-700 text-sm font-semibold mb-2">
+            Next Destination
+          </label>
           <div className="relative">
-            <MapPin className="absolute left-2 text-rose-400" />
+            <MapPin className="absolute left-2 top-1/2 transform -translate-y-1/2 text-rose-400" />
             <input
               type="text"
-              className="pl-10 w-full rounded-xl border-rose-200 bg-white/90 shadow-sm"
-              value={destination}
-              onChange={(e) => setDestination(e.target.value)}
-              required
+              value={cityQuery}
+              className="pl-10 w-full rounded-xl border-rose-200 bg-white/90 shadow-sm py-2"
+              onChange={handleCityChange}
+              placeholder="Type a city name"
             />
           </div>
+          {suggestions.length > 0 && (
+            <ul className="absolute z-10 w-full bg-white border border-rose-200 rounded-b-lg shadow-lg mt-1 max-h-60 overflow-auto">
+              {suggestions.map((city, index) => (
+                <li 
+                  key={index} 
+                  className="p-2 hover:bg-rose-50 cursor-pointer text-sm text-rose-800"
+                  onClick={() => handleSuggestionClick(city)}
+                >
+                  {city}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
         <div className="flex justify-between pt-4">

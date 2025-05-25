@@ -226,22 +226,6 @@ app.post('/api/login', async (req, res) => {
 });
 
 
-app.get('/api/city-suggestions', (req, res) => {
-  const { query } = req.query;
-  
-  if (!query) {
-    return res.json([]);
-  }
-
-  const suggestions = cities.filter(city => 
-    city.toLowerCase().includes(query.toLowerCase())
-  ).slice(0, 5);
-
-  res.json(suggestions);
-});
-
-// Add after your existing routes
-
 // Get current user profile
 app.get('/api/me', auth, async (req, res) => {
   try {
