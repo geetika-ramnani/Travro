@@ -30,26 +30,26 @@ function Login({ onLogin, backendUrl }) {
   };
 
   return (
-    <div className="bg-gradient-to-r from-rose-50 to-pink-50 p-8 rounded-2xl shadow-xl">
-      <h2 className="text-3xl font-bold mb-6 text-center bg-gradient-to-r from-rose-600 to-pink-600 text-transparent bg-clip-text">Login</h2>
+    <div className="bg-gradient-to-r from-neutral-300 to-neutral-400 p-8 rounded-2xl shadow-xl">
+      <h2 className="text-3xl font-bold mb-6 text-center bg-amber-900 text-transparent bg-clip-text">Login</h2>
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl mb-4">
+        <div className="text-amber-900 px-4 py-3 mb-4">
           {error}
         </div>
       )}
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label className="block text-rose-700 text-sm font-semibold mb-2" htmlFor="username">
+          <label className="block text-amber-900 text-sm font-semibold mb-2" htmlFor="username">
             Username
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <User className="h-5 w-5 text-rose-400" />
+              <User className="h-5 w-5 text-amber-900" />
             </div>
             <input
               type="text"
               id="username"
-              className="pl-10 block w-full rounded-xl border-rose-200 shadow-sm focus:border-rose-300 focus:ring focus:ring-rose-200 focus:ring-opacity-50 bg-white/90"
+              className="pl-10 block w-full rounded-xl bg-white/90"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
@@ -57,17 +57,17 @@ function Login({ onLogin, backendUrl }) {
           </div>
         </div>
         <div>
-          <label className="block text-rose-700 text-sm font-semibold mb-2" htmlFor="password">
+          <label className="block text-amber-900 text-sm font-semibold mb-2" htmlFor="password">
             Password
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Lock className="h-5 w-5 text-rose-400" />
+              <Lock className="h-5 w-5 text-amber-900" />
             </div>
             <input
               type="password"
               id="password"
-              className="pl-10 block w-full rounded-xl border-rose-200 shadow-sm focus:border-rose-300 focus:ring focus:ring-rose-200 focus:ring-opacity-50 bg-white/90"
+              className="pl-10 block w-full rounded-xl bg-white/90"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -76,7 +76,7 @@ function Login({ onLogin, backendUrl }) {
         </div>
         <button
           type="submit"
-          className="w-full bg-gradient-to-r from-rose-500 to-pink-500 text-white py-3 px-4 rounded-xl hover:from-rose-600 hover:to-pink-600 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-opacity-50 transform hover:scale-[1.02] transition-all duration-300 font-semibold shadow-lg"
+          className="w-full bg-gradient-to-r from-amber-900 to-amber-950 text-white py-2 px-4 rounded-xl hover:opacity-90"
         >
           Login
         </button>

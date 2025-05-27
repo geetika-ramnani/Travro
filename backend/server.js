@@ -24,7 +24,7 @@ cloudinary.config({
 
 const app = express();
 
-// Improved CORS configuration
+// CORS configuration
 app.use(cors({
   origin: 'http://localhost:5173', 
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -34,11 +34,12 @@ app.use(cors({
 // app.use(cors(corsOptions));
 // app.options('*', cors(corsOptions));
 
+// multer is a Node.js middleware for handling multipart/form-data, which is primarily used for file uploads.
 const upload = multer({ dest: 'uploads/' });
 
 // Body parsing middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json()); // Parses JSON request bodies into req.body
+app.use(express.urlencoded({ extended: true })); // Parses URL-encoded form submissions
 
 // MongoDB Connection with retry logic
 const connectWithRetry = async () => {
@@ -106,7 +107,7 @@ const userSchema = new mongoose.Schema({
   },
   imageUrl: {
     type: String,
-    required: true // ensure at least one image is uploaded
+    required: true 
   },
   destination: {
     type: String,

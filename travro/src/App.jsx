@@ -54,9 +54,10 @@ function App() {
     setView("login");
   };
 
+  //hidden
   const renderDbStatus = () => (
     <div
-      className={`fixed bottom-4 right-4 flex items-center space-x-2 px-4 py-2 rounded-full shadow-lg ${
+      className={`fixed bottom-4 right-4 flex items-center space-x-2 px-4 py-2 rounded-full shadow-lg hidden ${
         dbStatus.connected
           ? "bg-green-100 text-green-800"
           : "bg-red-100 text-red-800"
@@ -73,14 +74,14 @@ function App() {
 
   if (!token) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-rose-100 via-pink-100 to-rose-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-r from-cyan-800 to-cyan-950 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           {view === "login" ? (
             <>
               <Login onLogin={handleLogin} backendUrl={BACKEND_URL} />
               <button
                 onClick={() => setView("register")}
-                className="mt-4 text-rose-600 hover:text-rose-800 font-medium block mx-auto"
+                className="mt-4 text-stone-100 hover:text-stone-400 font-medium block mx-auto"
               >
                 Need an account? Register
               </button>
@@ -90,7 +91,7 @@ function App() {
               <Register onRegister={handleLogin} backendUrl={BACKEND_URL}/>
               <button
                 onClick={() => setView("login")}
-                className="mt-4 text-rose-600 hover:text-rose-800 font-medium block mx-auto"
+                className="mt-4 text-stone-100 hover:text-stone-400 font-medium block mx-auto"
               >
                 Already have an account? Login
               </button>
@@ -108,7 +109,7 @@ function App() {
     <>
       <button
         onClick={handleLogout}
-        className="flex items-center space-x-1 text-rose-600 hover:text-rose-800 transition-colors duration-200"
+        className="flex items-center space-x-1 text-amber-900 hover:text-amber-950 transition-colors duration-200"
         >
         <User className="w-5 h-5" />
         <span>Logout</span>
