@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Database, User } from 'lucide-react';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Profile from './pages/Profile';
 import { Client } from 'appwrite';
 
 
@@ -107,13 +108,7 @@ function App() {
 
   return (
     <>
-      <button
-        onClick={handleLogout}
-        className="flex items-center space-x-1 text-amber-900 hover:text-amber-950 transition-colors duration-200"
-        >
-        <User className="w-5 h-5" />
-        <span>Logout</span>
-      </button>
+      <Profile backendUrl={BACKEND_URL} onLogout={handleLogout} />
     </>
   )
 }

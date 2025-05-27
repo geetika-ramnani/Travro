@@ -206,6 +206,40 @@ app.get('/api/city-suggestions', (req, res) => {
   res.json(suggestions);
 });
 
+app.put('/api/profile', auth, upload.single('image'), async (req, res) => {
+  try {
+    const updates = {};
+
+    if (req.body.destination) {
+      updates.destination = req.body.destination;
+    }
+
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        folder: 'travro_users',
+      });
+      updates.imageUrl = result.secure_url;
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(req.user._id, updates, {
+      new: true,
+    });
+
+    res.send(updatedUser);
+  } catch (error) {
+    res.status(400).send({ error: 'Failed to update profile' });
+  }
+});
+
+app.get('/api/profile', auth, async (req, res) => {
+  res.send({
+    username: req.user.username,
+    dob: req.user.dob,
+    imageUrl: req.user.imageUrl,
+    destination: req.user.destination,
+  });
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
