@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import i1 from '../assets/i1.jpg';
+import i2 from '../assets/i2.jpg';
+import i3 from '../assets/i3.jpg';
+import i4 from '../assets/i4.jpg';
 
 function Profile({ backendUrl, onLogout }) {
   const [profile, setProfile] = useState(null);
   const [newImage, setNewImage] = useState(null);
-  const [newDestination, setNewDestination] = useState('');
   const [updating, setUpdating] = useState(false);
   const [cityQuery, setCityQuery] = useState('');
   const [destination, setDestination] = useState('');
@@ -58,6 +61,17 @@ const handleSuggestionClick = (suggestion) => {
   setSuggestions([]);
 };
 
+const carouselImages = [i1, i2, i3, i4];
+
+const [currentIndex, setCurrentIndex] = useState(0);
+
+useEffect(() => {
+  const interval = setInterval(() => {
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % carouselImages.length);
+  }, 3000); // change every 3 seconds
+
+  return () => clearInterval(interval);
+}, []);
 
   const handleUpdate = async () => {
     try {
@@ -86,69 +100,78 @@ const handleSuggestionClick = (suggestion) => {
   if (!profile) return <div className="text-amber-900 min-h-screen min-w-screen font-bold pt-5 bg-gradient-to-r from-neutral-300 to-neutral-400 text-center">Loading...</div>;
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-neutral-300 to-neutral-400 text-white flex flex-col items-center justify-center p-6 space-y-6">
-      <h1 className="text-3xl font-bold">My Profile</h1>
+    <div className="min-h-screen bg-gradient-to-r from-neutral-300 to-neutral-400 text-amber-900 flex flex-col md:flex-row">
+      
+      {/* Profile Section */}
+      <div className="w-full md:w-1/2 flex flex-col items-center space-y-6 p-6">
+        <h1 className="text-3xl font-bold ml-4 mt-4">{profile.username}, {new Date().getFullYear() - new Date(profile.dob).getFullYear()}</h1>
+        <img src={profile.imageUrl} alt="Profile" className="w-38 h-38 rounded-4xl border-2 border-amber-950" />
+        <div className="mb-4 relative w-full max-w-xs">
+          <label className="block text-sm font-semibold mb-2">Change Image</label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setNewImage(e.target.files[0])}
+            className="text-sm rounded-xl text-black bg-neutral-300 w-full py-2"
+          />
+        </div>
 
-      <img src={profile.imageUrl} alt="Profile" className="w-32 h-32 rounded-full border-4 border-white" />
+        <div className="mb-4 relative w-full max-w-xs">
+          <label className="block text-sm font-semibold mb-2">Next Destination</label>
+          <input
+            type="text"
+            value={destination}
+            onChange={handleCityChange}
+            placeholder="Type a city name"
+            className="pl-3 w-full rounded-xl bg-neutral-300 shadow-sm py-2 text-black"
+          />
 
-      <input
-        type="file"
-        accept="image/*"
-        onChange={(e) => setNewImage(e.target.files[0])}
-        className="text-sm"
-      />
+          {suggestions.length > 0 && (
+            <ul className="absolute z-10 w-full bg-white border border-neutral-400 rounded-b-lg shadow-lg mt-1 max-h-60 overflow-auto text-black">
+              {suggestions.map((city, index) => (
+                <li
+                  key={index}
+                  className="p-2 hover:bg-neutral-300 cursor-pointer text-sm"
+                  onClick={() => handleSuggestionClick(city)}
+                >
+                  {city}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
 
-      <div className="text-lg">
-        <p><strong>Username:</strong> {profile.username}</p>
-        <p><strong>Age:</strong> {new Date().getFullYear() - new Date(profile.dob).getFullYear()}</p>
+        <button
+          onClick={handleUpdate}
+          disabled={updating}
+          className="bg-amber-950 hover:bg-amber-900 text-neutral-300 px-6 py-2 rounded shadow"
+        >
+          {updating ? "Updating..." : "Update Profile"}
+        </button>
+
+        <button
+          onClick={onLogout}
+          className="mt-4 text-amber-900 hover:text-amber-950 underline"
+        >
+          Logout
+        </button>
       </div>
 
-      <div className="mb-4 relative w-full max-w-xs">
-  <label className="block text-white text-sm font-semibold mb-2">
-    Next Destination
-  </label>
-  <div className="relative">
-    {/* Optional: MapPin icon */}
-    {/* <MapPin className="absolute left-2 top-1/2 transform -translate-y-1/2 text-white" /> */}
-    <input
-      type="text"
-      value={destination}
-      onChange={handleCityChange}
-      placeholder="Type a city name"
-      className="pl-3 w-full rounded-xl bg-white/90 shadow-sm py-2 text-black"
-    />
-  </div>
-
-  {suggestions.length > 0 && (
-    <ul className="absolute z-10 w-full bg-white border border-neutral-400 rounded-b-lg shadow-lg mt-1 max-h-60 overflow-auto text-black">
-      {suggestions.map((city, index) => (
-        <li
-          key={index}
-          className="p-2 hover:bg-neutral-300 cursor-pointer text-sm"
-          onClick={() => handleSuggestionClick(city)}
-        >
-          {city}
-        </li>
-      ))}
-    </ul>
-  )}
-</div>
-
-
-      <button
-        onClick={handleUpdate}
-        disabled={updating}
-        className="bg-amber-600 hover:bg-amber-700 px-6 py-2 rounded shadow"
-      >
-        {updating ? "Updating..." : "Update Profile"}
-      </button>
-
-      <button
-        onClick={onLogout}
-        className="mt-4 text-rose-400 hover:text-rose-600 underline"
-      >
-        Logout
-      </button>
+      {/* Carousel Section */}
+      <div className="w-full md:w-1/2 flex justify-end items-center">
+        <div className="w-full md:w-[70%] h-[100vh] md:h-[100vh] relative">
+          {carouselImages.map((img, index) => (
+            <img
+              key={index}
+              src={img}
+              alt={`i ${index + 1}`}
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out ${
+                index === currentIndex ? 'opacity-100' : 'opacity-0'
+              }`}
+            />
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

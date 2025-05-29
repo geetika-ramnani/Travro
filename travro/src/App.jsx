@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Database, User } from 'lucide-react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
@@ -10,7 +10,6 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL; // backend URL
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token"));
-  const [view, setView] = useState("login");
   const [dbStatus, setDbStatus] = useState({
     connected: false,
     message: "Checking database connection...",
@@ -52,63 +51,50 @@ function App() {
   const handleLogout = () => {
     setToken(null);
     localStorage.removeItem("token");
-    setView("login");
   };
 
-  //hidden
-  const renderDbStatus = () => (
-    <div
-      className={`fixed bottom-4 right-4 flex items-center space-x-2 px-4 py-2 rounded-full shadow-lg hidden ${
-        dbStatus.connected
-          ? "bg-green-100 text-green-800"
-          : "bg-red-100 text-red-800"
-      }`}
-    >
-      <Database
-        className={`w-4 h-4 ${
-          dbStatus.connected ? "text-green-600" : "text-red-600"
-        }`}
-      />
-      <span className="text-sm font-medium hidden">{dbStatus.message}</span>
-    </div>
-  );
+  const PrivateRoute = ({ children }) => {
+    const token = localStorage.getItem("token");
+    return token ? children : <Navigate to="/login" replace />;
+  };
 
-  if (!token) {
-    return (
-      <div className="min-h-screen bg-gradient-to-r from-cyan-800 to-cyan-950 flex items-center justify-center p-4">
-        <div className="w-full max-w-md">
-          {view === "login" ? (
-            <>
-              <Login onLogin={handleLogin} backendUrl={BACKEND_URL} />
-              <button
-                onClick={() => setView("register")}
-                className="mt-4 text-stone-100 hover:text-stone-400 font-medium block mx-auto"
-              >
-                Need an account? Register
-              </button>
-            </>
-          ) : (
-            <>
-              <Register onRegister={handleLogin} backendUrl={BACKEND_URL}/>
-              <button
-                onClick={() => setView("login")}
-                className="mt-4 text-stone-100 hover:text-stone-400 font-medium block mx-auto"
-              >
-                Already have an account? Login
-              </button>
-            </>
-          )}
-        </div>
-        {renderDbStatus()}
-      </div>
-    );
-  }
-
-
+  const PublicRoute = ({ children }) => {
+    const token = localStorage.getItem("token");
+    return !token ? children : <Navigate to="/profile" replace />;
+  };
 
   return (
     <>
-      <Profile backendUrl={BACKEND_URL} onLogout={handleLogout} />
+      <Router>
+      <Routes>
+        <Route
+          path="/login"
+          element={
+            <PublicRoute>
+              <Login backendUrl={BACKEND_URL} onLogin={handleLogin} />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <PublicRoute>
+              <Register backendUrl={BACKEND_URL} onRegister={handleLogin} />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <PrivateRoute>
+              <Profile backendUrl={BACKEND_URL} token={token} onLogout={handleLogout} />
+            </PrivateRoute>
+          }
+        />
+        {/* Redirect any unknown route to login */}
+        <Route path="*" element={<Navigate to={token ? "/profile" : "/login"} replace />} />
+      </Routes>
+    </Router>
     </>
   )
 }
