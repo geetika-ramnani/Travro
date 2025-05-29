@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { User, Lock, Calendar, MapPin, Image } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import bg1 from '../assets/bg1.jpg';
 
 function Register({ onRegister, backendUrl }) {
   const [username, setUsername] = useState('');
@@ -75,7 +76,7 @@ function Register({ onRegister, backendUrl }) {
   return (
     <div
       className="min-h-screen flex items-center justify-center bg-cover bg-center"
-      style={{ backgroundImage: "url('./src/assets/bg1.jpg')" }}
+      style={{ backgroundImage: `url(${bg1})` }}
     >
       <div className="backdrop-blur-md bg-white/10 border border-white/30 rounded-xl p-8 w-[350px] shadow-lg">
         <h2 className="text-3xl font-bold text-white text-center mb-6">Register</h2>

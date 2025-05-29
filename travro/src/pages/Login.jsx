@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { User, Lock } from 'lucide-react';
 import { Link } from 'react-router-dom'
+import bg1 from '../assets/bg1.jpg';
 
 function Login({ onLogin, backendUrl }) {
   const [username, setUsername] = useState('');
@@ -33,7 +34,7 @@ function Login({ onLogin, backendUrl }) {
   return (
     <div
       className="min-h-screen flex flex-col md:flex-row bg-cover bg-center"
-      style={{ backgroundImage: "url('./src/assets/bg1.jpg')" }}
+      style={{ backgroundImage: `url(${bg1})` }}
     >
       {/* Left: Welcome Text */}
       <div className="w-full md:w-1/2 flex items-center justify-center p-8">
