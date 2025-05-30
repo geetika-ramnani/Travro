@@ -4,6 +4,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
 import { Client } from 'appwrite';
+import Explore from './pages/Explore';
 
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL; // backend URL
@@ -91,6 +92,15 @@ function App() {
             </PrivateRoute>
           }
         />
+        <Route
+          path="/explore"
+          element={
+            <PrivateRoute>
+              <Explore backendUrl={BACKEND_URL} />
+            </PrivateRoute>
+          }
+        />
+        
         {/* Redirect any unknown route to login */}
         <Route path="*" element={<Navigate to={token ? "/profile" : "/login"} replace />} />
       </Routes>

@@ -68,6 +68,8 @@ function Login({ onLogin, backendUrl }) {
                   className="pl-10 block w-full rounded-full bg-white/20 text-white placeholder-white/70 focus:outline-none py-2"
                   placeholder="Enter username"
                   value={username}
+                  name="username"
+                  autoComplete="username"
                   onChange={(e) => setUsername(e.target.value)}
                   required
                 />
@@ -88,6 +90,8 @@ function Login({ onLogin, backendUrl }) {
                   className="pl-10 block w-full rounded-full bg-white/20 text-white placeholder-white/70 focus:outline-none py-2"
                   placeholder="Enter password"
                   value={password}
+                  name="password"
+                  autoComplete="current-password"
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />

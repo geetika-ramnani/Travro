@@ -1,4 +1,4 @@
-import express from 'express';
+ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -7,6 +7,8 @@ import jwt from 'jsonwebtoken';
 import multer from 'multer';
 import { v2 as cloudinary } from 'cloudinary';
 import { createRequire } from 'module';
+import haversine from 'haversine-distance';
+
 
 
 const require = createRequire(import.meta.url);
@@ -119,6 +121,17 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.model('User', userSchema);
 
+// models/City.js
+const citySchema = new mongoose.Schema({
+  city: String,
+  country: String,
+  lat: Number,
+  lng: Number,
+});
+
+const City = mongoose.model('City', citySchema);
+
+
 // Authentication Middleware
 const auth = async (req, res, next) => {
   try {
@@ -194,14 +207,17 @@ app.post('/api/login', async (req, res) => {
 
 app.get('/api/city-suggestions', (req, res) => {
   const { query } = req.query;
-  
+
   if (!query) {
     return res.json([]);
   }
 
-  const suggestions = cities.filter(city => 
-    city.toLowerCase().includes(query.toLowerCase())
-  ).slice(0, 5);
+  const suggestions = cities
+    .filter(city =>
+      city.city.toLowerCase().includes(query.toLowerCase())
+    )
+    .slice(0, 5)
+    .map(city => city.city);
 
   res.json(suggestions);
 });
@@ -238,6 +254,45 @@ app.get('/api/profile', auth, async (req, res) => {
     imageUrl: req.user.imageUrl,
     destination: req.user.destination,
   });
+});
+
+app.get('/api/explore', auth, async (req, res) => {
+  try {
+    const currentUser = req.user;
+
+    // Get coordinates of current user's destination
+    const currentCity = cities.find(city => city.city.toLowerCase() === currentUser.destination.toLowerCase());
+    if (!currentCity) return res.status(400).json({ error: 'Invalid destination in your profile.' });
+
+    const currentLocation = { lat: currentCity.lat, lng: currentCity.lng };
+
+    // Filter other users
+    const users = await User.find({ _id: { $ne: currentUser._id } });
+
+    const nearbyUsers = users.filter(user => {
+      const otherCity = cities.find(city => city.city.toLowerCase() === user.destination.toLowerCase());
+      if (!otherCity) return false;
+
+      const otherLocation = { lat: otherCity.lat, lng: otherCity.lng };
+      const distanceInMeters = haversine(currentLocation, otherLocation);
+      const distanceInKm = distanceInMeters / 1000;
+
+      return distanceInKm <= 400;
+    });
+
+    // Format the response
+    const response = nearbyUsers.map(user => ({
+      username: user.username,
+      age: Math.floor((new Date() - new Date(user.dob)) / (365.25 * 24 * 60 * 60 * 1000)),
+      imageUrl: user.imageUrl,
+      destination: user.destination,
+    }));
+
+    res.json(response);
+  } catch (error) {
+    console.error('Error in /api/explore:', error.message);
+    res.status(500).json({ error: 'Something went wrong' });
+  }
 });
 
 const PORT = process.env.PORT || 3000;
